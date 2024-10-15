@@ -13,6 +13,7 @@ services:
       - "80:80"
     volumes:
       - ~/sharelatex_data:/var/lib/sharelatex
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       SHARELATEX_APP_NAME: Overleaf Community Edition
       SHARELATEX_MONGO_URL: mongodb://mongo/sharelatex
@@ -26,8 +27,6 @@ services:
       DOCKER_RUNNER: 'true'
       SANDBOXED_COMPILES_SIBLING_CONTAINERS: 'true'
       SANDBOXED_COMPILES_HOST_DIR: '/home/sharelatex/sharelatex_data/data/compiles'
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
 
   mongo:
     restart: always
