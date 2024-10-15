@@ -74,7 +74,7 @@ services:
     image: jwilder/nginx-proxy
     container_name: nginx-proxy
     ports:
-      - "443:443"
+      - "4443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - /home/sharelatex/tmp:/etc/nginx/certs
