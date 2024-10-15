@@ -1,7 +1,8 @@
+version: '3'
 services:
   sharelatex:
     restart: always
-    image: sharelatex/sharelatex
+    image: sharelatex/sharelatex:latest
     container_name: sharelatex
     depends_on:
       mongo:
@@ -9,50 +10,34 @@ services:
       redis:
         condition: service_started
     ports:
-      - 80:80
-    stop_grace_period: 60s
+      - "80:80"
     volumes:
-      - ~/sharelatex_data:/var/lib/overleaf
-      # Uncomment the following line to mount the docker socket for Sibling Containers
-      # - /var/run/docker.sock:/var/run/docker.sock
+      - ~/sharelatex_data:/var/lib/sharelatex
     environment:
-      OVERLEAF_APP_NAME: Overleaf Community Edition
-      OVERLEAF_MONGO_URL: mongodb://mongo/sharelatex
-      OVERLEAF_REDIS_HOST: redis
+      SHARELATEX_APP_NAME: Overleaf Community Edition
+      SHARELATEX_MONGO_URL: mongodb://mongo/sharelatex
+      SHARELATEX_REDIS_HOST: redis
       REDIS_HOST: redis
       ENABLED_LINKED_FILE_TYPES: 'project_file,project_output_file'
       ENABLE_CONVERSIONS: 'true'
       EMAIL_CONFIRMATION_DISABLED: 'true'
-      TEXMFVAR: /var/lib/overleaf/tmp/texmf-var
-      # SSL configuration
-      # VIRTUAL_HOST: 103.112.212.22
-      # Other optional settings
-      # OVERLEAF_SITE_URL: http://overleaf.example.com
-      # OVERLEAF_NAV_TITLE: Overleaf Community Edition
-      # OVERLEAF_HEADER_IMAGE_URL: http://example.com/mylogo.png
-      # OVERLEAF_ADMIN_EMAIL: support@it.com
-      # OVERLEAF_LEFT_FOOTER: '[{"text": "Footer text here"}]'
-      # OVERLEAF_RIGHT_FOOTER: '[{"text": "Footer text here"}]'
-      # OVERLEAF_EMAIL_FROM_ADDRESS: hello@example.com
-      # Enable sandboxed compiles
-      SANDBOXED_COMPILES: 'true'
+      TEXMFVAR: /var/lib/sharelatex/tmp/texmf-var
+      # Sandboxed compiles
+      DOCKER_RUNNER: 'true'
       SANDBOXED_COMPILES_SIBLING_CONTAINERS: 'true'
-      SANDBOXED_COMPILES_HOST_DIR: '/home/user/sharelatex_data/data/compiles'
-  
+      SANDBOXED_COMPILES_HOST_DIR: '/home/sharelatex/sharelatex_data/data/compiles'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   mongo:
     restart: always
     image: mongo:5.0
     container_name: mongo
-    command: '--replSet overleaf'
+    command: '--replSet rs0'
     volumes:
       - ~/mongo_data:/data/db
-      - ./mongodb-init-replica-set.js:/docker-entrypoint-initdb.d/mongodb-init-replica-set.js
-    environment:
-      MONGO_INITDB_DATABASE: sharelatex
-    extra_hosts:
-      - mongo:127.0.0.1
     healthcheck:
-      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       timeout: 10s
       retries: 5
@@ -64,18 +49,14 @@ services:
     volumes:
       - ~/redis_data:/data
 
-  # Uncomment the LDAP service configuration if needed
-  # ldap:
-  #   restart: always
-  #   image: rroemhild/test-openldap
-  #   container_name: ldap
-
   nginx-proxy:
-    image: jwilder/nginx-proxy
+    image: nginxproxy/nginx-proxy:latest
     container_name: nginx-proxy
     ports:
-      - "8080:80"
-      - "4443:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - /home/sharelatex/tmp:/etc/nginx/certs
+      - ~/nginx_certs:/etc/nginx/certs
+      - ~/nginx_vhost:/etc/nginx/vhost.d
+      - ~/nginx_html:/usr/share/nginx/html
