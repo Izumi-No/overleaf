@@ -9,7 +9,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    ports:
+   # ports:
       #- "8880:80"
     volumes:
       - ~/sharelatex_data:/var/lib/sharelatex
