@@ -12,7 +12,7 @@ services:
             redis:
                 condition: service_started
         ports:
-            - 8880:80
+            - 80
         stop_grace_period: 60s
         volumes:
             - ~/sharelatex_data:/var/lib/overleaf
@@ -45,7 +45,7 @@ services:
             TEXMFVAR: /var/lib/overleaf/tmp/texmf-var
 
             ## Set for SSL via nginx-proxy
-            #VIRTUAL_HOST: 103.112.212.22
+            VIRTUAL_HOST: 195.26.251.6
 
             # OVERLEAF_SITE_URL: http://overleaf.example.com
             # OVERLEAF_NAV_TITLE: Overleaf Community Edition
@@ -137,12 +137,4 @@ services:
     # settings. We recommend using a properly managed nginx instance outside of the Overleaf Server Pro setup,
     # but the example here can be used if you'd prefer to run everything with docker-compose
 
-    # nginx-proxy:
-    #     image: jwilder/nginx-proxy
-    #     container_name: nginx-proxy
-    #     ports:
-    #       - "80:80"
-    #       - "443:443"
-    #     volumes:
-    #       - /var/run/docker.sock:/tmp/docker.sock:ro
-    #       - /home/overleaf/tmp:/etc/nginx/certs
+   
