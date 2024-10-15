@@ -1,32 +1,32 @@
 version: '3'
 services:
-  sharelatex:
+  overleaf:
     restart: always
-    image: sharelatex/sharelatex:latest
-    container_name: sharelatex
+    image: overleaf/overleaf:latest
+    container_name: overleaf
     depends_on:
       mongo:
         condition: service_healthy
       redis:
         condition: service_started
-   # ports:
-      #- "8880:80"
+    ports:
+      - "80:80"
     volumes:
-      - ~/sharelatex_data:/var/lib/sharelatex
+      - ~/overleaf_data:/var/lib/overleaf
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       SHARELATEX_APP_NAME: Overleaf Community Edition
-      SHARELATEX_MONGO_URL: mongodb://mongo/sharelatex
+      SHARELATEX_MONGO_URL: mongodb://mongo/overleaf
       SHARELATEX_REDIS_HOST: redis
       REDIS_HOST: redis
       ENABLED_LINKED_FILE_TYPES: 'project_file,project_output_file'
       ENABLE_CONVERSIONS: 'true'
       EMAIL_CONFIRMATION_DISABLED: 'true'
-      TEXMFVAR: /var/lib/sharelatex/tmp/texmf-var
+      TEXMFVAR: /var/lib/overleaf/tmp/texmf-var
       # Sandboxed compiles
       DOCKER_RUNNER: 'true'
       SANDBOXED_COMPILES_SIBLING_CONTAINERS: 'true'
-      SANDBOXED_COMPILES_HOST_DIR: '/home/sharelatex/sharelatex_data/data/compiles'
+      SANDBOXED_COMPILES_HOST_DIR: '/home/overleaf/overleaf_data/data/compiles'
 
   mongo:
     restart: always
@@ -52,8 +52,8 @@ services:
     image: nginxproxy/nginx-proxy:latest
     container_name: nginx-proxy
     ports:
-      - "8080:80"
-      - "4443:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ~/nginx_certs:/etc/nginx/certs
