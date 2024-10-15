@@ -10,7 +10,7 @@ services:
       redis:
         condition: service_started
     ports:
-      - "80:80"
+      - "8880:80"
     volumes:
       - ~/sharelatex_data:/var/lib/sharelatex
       - /var/run/docker.sock:/var/run/docker.sock
